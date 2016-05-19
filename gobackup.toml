@@ -1,0 +1,18 @@
+title = "Example Backups Configuration"
+
+[directories]
+
+[directories.App1]
+origin = "/examples/dir1"
+destiny = "/backups/dir1"
+retention = 45
+
+[directories.App2]
+origin = "/examples/dir2"
+destiny = "/backups/dir2"
+retention = 30
+
+[directories.App3]
+origin = "/examples/dir3"
+destiny = "/backups/dir3"
+retention = 30
