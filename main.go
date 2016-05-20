@@ -12,12 +12,11 @@ import (
 	"gotoolbackup/checkers"
 	"gotoolbackup/models"
 	"os"
-
-	"github.com/BurntSushi/toml"
 )
 
 func main() {
-	continuebackup := checkers.RunCheck()
+	config := checkers.ReadTomlFile("gobackup.toml")
+	continuebackup := checkers.RunCheck(config)
 	if continuebackup != true {
 		os.Exit(1)
 	}
@@ -25,12 +24,6 @@ func main() {
 	fmt.Printf("%s", "Checking Retention for files\n")
 	checkers.LineSeparator()
 	backup := &models.Backups{}
-	//  needs improvement
-	var config models.Tomlconfig
-	if _, err := toml.DecodeFile("gobackup.toml", &config); err != nil {
-		fmt.Println(err)
-	}
-	// needs improvement
 	for _, directory := range config.Directories {
 		salida := checkers.CheckFiles(directory.ORIGIN, directory.DESTINY, directory.RETENTION)
 		fmt.Printf("%s\n%s\n", salida.ORIGIN, salida.FILES)

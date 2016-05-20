@@ -15,6 +15,14 @@ func LineSeparator() {
 	fmt.Println("#####################################")
 }
 
+func ReadTomlFile(tomlfile string) models.Tomlconfig {
+	var config models.Tomlconfig
+	if _, err := toml.DecodeFile(tomlfile, &config); err != nil {
+		panic(err)
+	}
+	return config
+}
+
 // function to check if origin and destiny exist
 func checkExist(origin string, destiny string) bool {
 	var dirErrors bool
@@ -33,13 +41,8 @@ func checkExist(origin string, destiny string) bool {
 }
 
 // function to run check
-func RunCheck() bool {
+func RunCheck(config models.Tomlconfig) bool {
 	continuebackup := true
-	var config models.Tomlconfig
-	if _, err := toml.DecodeFile("gobackup.toml", &config); err != nil {
-		fmt.Println(err)
-		return false
-	}
 	LineSeparator()
 	fmt.Printf("Config Title:\n%s\n", config.Title)
 	LineSeparator()
