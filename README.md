@@ -1,11 +1,11 @@
 gotoolbackup
 ============
 
-Program to create backups using toml file, where you indicate origin and destiny directories and retention period in days.
+Program to create backups using toml file, where you indicate origin/destiny directories and retention period in days.
 
 TODO: include log package to create an output file.
 
-Note: this is not to replace shell scripts or anything else, is just to practice some golang and learn how to use tar and gzip packages, backups times are not bad but it could be better.
+Note: this is not to replace shell scripts or some enterprise tool.
 
     > ./gotoolbackup --help
     Usage of ./gotoolbackup:
@@ -13,8 +13,8 @@ Note: this is not to replace shell scripts or anything else, is just to practice
             indicate if you want to keep original files. (default true)
       -tomlfile string
             indicate tomlfile to read backups details. (default "gobackup.toml")
-  
-  
+
+
     > ./gotoolbackup --tomlfile=/tmp/gobackup.toml --keepfiles=false
     #### Running with values ####
     tomlfile: /tmp/gobackup.toml

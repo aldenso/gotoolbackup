@@ -22,7 +22,7 @@ type Directory struct {
 	RETENTION int
 }
 
-// struct to check wich files need backup
+// struct to check wich files needs backup
 type Filestobackup struct {
 	ORIGIN  string
 	FILES   []string
@@ -69,7 +69,7 @@ func (b *Backups) BackingUP() error {
 	return nil
 }
 
-// function to delete original files is keepfiles in main is false, only after
+// function to delete original files if keepfiles in main is false, only after
 // the backup is completed without errors.
 func (b *Backups) RemoveOriginalFiles() error {
 	for _, v := range b.Elements {

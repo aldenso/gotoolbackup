@@ -14,6 +14,7 @@ import (
 	"os"
 )
 
+// variables to indicate flags values
 var (
 	tomlfile = flag.String("tomlfile", "gobackup.toml",
 		"indicate tomlfile to read backups details.")
@@ -21,6 +22,7 @@ var (
 		"indicate if you want to keep original files.")
 )
 
+// function to indicate the values you are using
 func printUsedValues() {
 	fmt.Println("#### Running with values ####")
 	fmt.Println("tomlfile:", *tomlfile)
