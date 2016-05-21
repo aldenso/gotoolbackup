@@ -3,6 +3,7 @@ package models
 import (
 	"archive/tar"
 	"compress/gzip"
+	"fmt"
 	"io"
 	"os"
 	"time"
@@ -63,6 +64,24 @@ func (b *Backups) BackingUP() error {
 					return err
 				}
 			}
+		}
+	}
+	return nil
+}
+
+// function to delete original files is keepfiles in main is false, only after
+// the backup is completed without errors.
+func (b *Backups) RemoveOriginalFiles() error {
+	for _, v := range b.Elements {
+		if len(v.FILES) > 0 {
+			for _, file := range v.FILES {
+				err := os.Remove(v.ORIGIN + "/" + file)
+				if err != nil {
+					fmt.Println("failed to remove old files.")
+					return err
+				}
+			}
+			fmt.Printf("Removed Original Files for %s: %v\n", v.ORIGIN, v.FILES)
 		}
 	}
 	return nil

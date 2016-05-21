@@ -2,20 +2,35 @@
 Program to create backups using toml file, where you indicate origin and destiny
 directories and retention.
 
-TODO: use external tomlfile, use flags to indicate if you want to erase original
-files or not.
+TODO: include log package to create output file
 */
 package main
 
 import (
+	"flag"
 	"fmt"
 	"gotoolbackup/checkers"
 	"gotoolbackup/models"
 	"os"
 )
 
+var (
+	tomlfile = flag.String("tomlfile", "gobackup.toml",
+		"indicate tomlfile to read backups details.")
+	keepfiles = flag.Bool("keepfiles", true,
+		"indicate if you want to keep original files.")
+)
+
+func printUsedValues() {
+	fmt.Println("#### Running with values ####")
+	fmt.Println("tomlfile:", *tomlfile)
+	fmt.Println("keepfiles:", *keepfiles)
+}
+
 func main() {
-	config := checkers.ReadTomlFile("gobackup.toml")
+	flag.Parse()
+	printUsedValues()
+	config := checkers.ReadTomlFile(*tomlfile)
 	continuebackup := checkers.RunCheck(config)
 	if continuebackup != true {
 		os.Exit(1)
@@ -40,5 +55,11 @@ func main() {
 		fmt.Println(err)
 	} else {
 		fmt.Println("Backup Successful")
+		if !*keepfiles {
+			err := backup.RemoveOriginalFiles()
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
 	}
 }
