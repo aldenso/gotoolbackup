@@ -3,8 +3,6 @@ gotoolbackup
 
 Program to create backups using toml file, where you indicate origin/destiny directories and retention period in days.
 
-TODO: include log package to create an output file.
-
 Note: this is not to replace shell scripts or some enterprise tool.
 
 Usage
