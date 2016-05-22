@@ -24,5 +24,6 @@ func NewLogger(filename string) *AppLogger {
 }
 
 func (l *AppLogger) Close() error {
-	return l.Logfile.Close()
+	err := l.Logfile.Close()
+	return err
 }

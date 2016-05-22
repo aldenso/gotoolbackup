@@ -34,6 +34,16 @@ type Backups struct {
 	Elements []Filestobackup
 }
 
+func (f *Filestobackup) Size() int64 {
+	var size int64
+	for _, file := range f.FILES {
+		info, _ := os.Stat(f.ORIGIN + "/" + file)
+		increment := info.Size()
+		size = size + increment
+	}
+	return size
+}
+
 // method to create backups with tar and gzip
 func (b *Backups) BackingUP() error {
 	for _, v := range b.Elements {

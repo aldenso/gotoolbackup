@@ -26,12 +26,17 @@ Usage
     Config Title:
     Example Backups Configuration
     #####################################
+    Backup: App2
+    Origin: /examples/dir2 | Destiny: /backups/dir2 | Retention: 30
     Backup: App3
     Origin: /examples/dir3 | Destiny: /backups/dir3 | Retention: 30
     Backup: App1
     Origin: /examples/dir1 | Destiny: /backups/dir1 | Retention: 45
-    Backup: App2
-    Origin: /examples/dir2 | Destiny: /backups/dir2 | Retention: 30
+    #####################################
+    Checking directories:
+    PASS: /examples/dir3
+    PASS: /backups/dir3
+    ++++ PASS!!!!!!! ++++
     #####################################
     Checking directories:
     PASS: /examples/dir1
@@ -43,13 +48,11 @@ Usage
     PASS: /backups/dir2
     ++++ PASS!!!!!!! ++++
     #####################################
-    Checking directories:
-    PASS: /examples/dir3
-    PASS: /backups/dir3
-    ++++ PASS!!!!!!! ++++
-    #####################################
     Checking Retention for files
     #####################################
+    /examples/dir1
+    [file1 file2 file3]
+    ====================================================
     /examples/dir2
     []
     nothing to backup in: /examples/dir2
@@ -57,25 +60,11 @@ Usage
     /examples/dir3
     [file2 file3]
     ====================================================
-    /examples/dir1
-    [file1 file2 file3]
-    ====================================================
     Running backups for:
-    /examples/dir3: file2,file3
-    /examples/dir1: file1,file2,file3
+    /examples/dir1: file1,file2,file3 size in bytes: 159223635
+    /examples/dir3: file2,file3 size in bytes: 47185920
     Backup Successful
-    Removed Original Files for /examples/dir3: [file2 file3]
     Removed Original Files for /examples/dir1: [file1 file2 file3]
+    Removed Original Files for /examples/dir3: [file2 file3]
     old files removed
-    gotoolbackup ended! in: 4.429549862s
-
-
-    >cat output_2016-05-21T22:50:58-04:30.log
-    gotoolbackup: 2016/05/21 22:50:58 Checking Retention for files
-    gotoolbackup: 2016/05/21 22:50:58 nothing to backup in: /examples/dir2
-    gotoolbackup: 2016/05/21 22:50:58 Running backups for:
-    gotoolbackup: 2016/05/21 22:50:58 /examples/dir3: file2,file3
-    gotoolbackup: 2016/05/21 22:50:58 /examples/dir1: file1,file2,file3
-    gotoolbackup: 2016/05/21 22:51:02 Backup Successful
-    gotoolbackup: 2016/05/21 22:51:02 old files removed
-    gotoolbackup: 2016/05/21 22:51:02 gotoolbackup ended! in: 4.429549862s
+    gotoolbackup ended! in: 3.258203627s

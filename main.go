@@ -8,6 +8,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -86,16 +87,18 @@ func main() {
 	PrintLog("Running backups for: ")
 	for _, i := range backup.Elements {
 		files := strings.Join(i.FILES, ",")
-		PrintLog(i.ORIGIN + ": " + files)
+		PrintLog(i.ORIGIN + ": " + files + " size in bytes: " +
+			strconv.FormatInt(i.Size(), 10))
 	}
 	err = backup.BackingUP()
 	CheckError(err)
 	PrintLog("Backup Successful")
 	if *removefiles {
-		err := backup.RemoveOriginalFiles()
+		err = backup.RemoveOriginalFiles()
 		CheckError(err)
 		PrintLog("old files removed")
 	}
 	PrintLog("gotoolbackup ended! in: " + time.Since(start).String())
-	Logs.Close()
+	err = Logs.Close()
+	CheckError(err)
 }
