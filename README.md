@@ -68,3 +68,14 @@ Usage
     Removed Original Files for /examples/dir3: [file2 file3]
     old files removed
     gotoolbackup ended! in: 3.258203627s
+
+
+    > cat output_2016-05-22T04:54:48-04:30.log
+    gotoolbackup: 2016/05/22 04:54:48 Checking Retention for files
+    gotoolbackup: 2016/05/22 04:54:48 nothing to backup in: /examples/dir2
+    gotoolbackup: 2016/05/22 04:54:48 Running backups for:
+    gotoolbackup: 2016/05/22 04:54:48 /examples/dir1: file1,file2,file3 size in bytes: 159223635
+    gotoolbackup: 2016/05/22 04:54:48 /examples/dir3: file2,file3 size in bytes: 47185920
+    gotoolbackup: 2016/05/22 04:54:52 Backup Successful
+    gotoolbackup: 2016/05/22 04:54:52 old files removed
+    gotoolbackup: 2016/05/22 04:54:52 gotoolbackup ended! in: 3.258203627s

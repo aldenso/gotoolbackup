@@ -39,10 +39,10 @@ func printUsedValues() {
 var Logs *applogger.AppLogger
 
 // function to help with error validation and logs
-func CheckError(e error) {
-	if e != nil {
-		Logs.Logger.Println("Error:", e)
-		fmt.Println("Error:", e)
+func CheckError(err error) {
+	if err != nil {
+		Logs.Logger.Println("Error:", err)
+		fmt.Println("Error:", err)
 		Logs.Close()
 		os.Exit(1)
 	}
@@ -59,11 +59,12 @@ func main() {
 	flag.Parse()
 	printUsedValues()
 	Logs = applogger.NewLogger(*logfile)
+	PrintLog("Reading tomlfile: " + *tomlfile)
 	config, err := checkers.ReadTomlFile(*tomlfile)
 	CheckError(err)
-	continuebackup := checkers.RunCheck(*config)
-	if continuebackup != true {
-		os.Exit(1)
+	err = checkers.RunCheck(*config)
+	if err != nil {
+		CheckError(err)
 	}
 	checkers.LineSeparator()
 	PrintLog("Checking Retention for files")
