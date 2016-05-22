@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"gotoolbackup/models"
+	"github.com/aldenso/gotoolbackup/models"
 
 	"github.com/BurntSushi/toml"
 )

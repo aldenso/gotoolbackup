@@ -7,12 +7,13 @@ package main
 import (
 	"flag"
 	"fmt"
-	"gotoolbackup/applogger"
-	"gotoolbackup/checkers"
-	"gotoolbackup/models"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/aldenso/gotoolbackup/applogger"
+	"github.com/aldenso/gotoolbackup/checkers"
+	"github.com/aldenso/gotoolbackup/models"
 )
 
 // variables to indicate flags values
