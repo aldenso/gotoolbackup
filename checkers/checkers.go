@@ -15,12 +15,12 @@ func LineSeparator() {
 	fmt.Println("#####################################")
 }
 
-func ReadTomlFile(tomlfile string) models.Tomlconfig {
-	var config models.Tomlconfig
+func ReadTomlFile(tomlfile string) (*models.Tomlconfig, error) {
+	var config *models.Tomlconfig
 	if _, err := toml.DecodeFile(tomlfile, &config); err != nil {
-		panic(err)
+		return nil, err
 	}
-	return config
+	return config, nil
 }
 
 // function to check if origin and destiny exist

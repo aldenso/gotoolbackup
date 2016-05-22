@@ -7,28 +7,33 @@ TODO: include log package to create an output file.
 
 Note: this is not to replace shell scripts or some enterprise tool.
 
-    > ./gotoolbackup --help
+Usage
+
+    > ./gotoolbackup -help
     Usage of ./gotoolbackup:
-      -keepfiles
-            indicate if you want to keep original files. (default true)
+      -log string
+            indicate the log name pattern. (default "gotoolbackup")
+      -remove
+            indicate if you want to remove original files after backup.
       -tomlfile string
             indicate tomlfile to read backups details. (default "gobackup.toml")
 
 
-    > ./gotoolbackup --tomlfile=/tmp/gobackup.toml --keepfiles=false
+    > ./gotoolbackup -log=output -tomlfile=/tmp/gobackup.toml -remove
     #### Running with values ####
     tomlfile: /tmp/gobackup.toml
-    keepfiles: false
+    remove: true
+    log: output
     #####################################
     Config Title:
     Example Backups Configuration
     #####################################
+    Backup: App3
+    Origin: /examples/dir3 | Destiny: /backups/dir3 | Retention: 30
     Backup: App1
     Origin: /examples/dir1 | Destiny: /backups/dir1 | Retention: 45
     Backup: App2
     Origin: /examples/dir2 | Destiny: /backups/dir2 | Retention: 30
-    Backup: App3
-    Origin: /examples/dir3 | Destiny: /backups/dir3 | Retention: 30
     #####################################
     Checking directories:
     PASS: /examples/dir1
@@ -47,9 +52,6 @@ Note: this is not to replace shell scripts or some enterprise tool.
     #####################################
     Checking Retention for files
     #####################################
-    /examples/dir1
-    [file1 file2 file3]
-    ====================================================
     /examples/dir2
     []
     nothing to backup in: /examples/dir2
@@ -57,7 +59,25 @@ Note: this is not to replace shell scripts or some enterprise tool.
     /examples/dir3
     [file2 file3]
     ====================================================
-    BACKING [{/examples/dir1 [file1 file2 file3] /backups/dir1} {/examples/dir3 [file2 file3] /backups/dir3}]
+    /examples/dir1
+    [file1 file2 file3]
+    ====================================================
+    Running backups for:
+    /examples/dir3: file2,file3
+    /examples/dir1: file1,file2,file3
     Backup Successful
-    Removed Original Files for /examples/dir1: [file1 file2 file3]
     Removed Original Files for /examples/dir3: [file2 file3]
+    Removed Original Files for /examples/dir1: [file1 file2 file3]
+    old files removed
+    gotoolbackup ended! in: 4.429549862s
+
+
+    >cat output_2016-05-21T22:50:58-04:30.log
+    gotoolbackup: 2016/05/21 22:50:58 Checking Retention for files
+    gotoolbackup: 2016/05/21 22:50:58 nothing to backup in: /examples/dir2
+    gotoolbackup: 2016/05/21 22:50:58 Running backups for:
+    gotoolbackup: 2016/05/21 22:50:58 /examples/dir3: file2,file3
+    gotoolbackup: 2016/05/21 22:50:58 /examples/dir1: file1,file2,file3
+    gotoolbackup: 2016/05/21 22:51:02 Backup Successful
+    gotoolbackup: 2016/05/21 22:51:02 old files removed
+    gotoolbackup: 2016/05/21 22:51:02 gotoolbackup ended! in: 4.429549862s
