@@ -11,10 +11,12 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
+//LineSeparator just for separate output in more readable lines
 func LineSeparator() {
 	fmt.Println("#####################################")
 }
 
+//ReadTomlFile function to read the config file
 func ReadTomlFile(tomlfile string) (*models.Tomlconfig, error) {
 	var config *models.Tomlconfig
 	if _, err := toml.DecodeFile(tomlfile, &config); err != nil {
@@ -32,14 +34,13 @@ func checkExist(origin string, destiny string) error {
 		if _, err := os.Stat(d); os.IsNotExist(err) {
 			fmt.Printf("FAILED: %s\n%v\n", d, err.Error())
 			return err
-		} else {
-			fmt.Printf("PASS: %s\n", d)
 		}
+		fmt.Printf("PASS: %s\n", d)
 	}
 	return nil
 }
 
-// function to run check
+//RunCheck function to run check
 func RunCheck(config models.Tomlconfig) error {
 	LineSeparator()
 	fmt.Printf("Config Title:\n%s\n", config.Title)
@@ -52,14 +53,13 @@ func RunCheck(config models.Tomlconfig) error {
 		if err != nil {
 			fmt.Println("---- FAILED!!!!! ----")
 			return err
-		} else {
-			fmt.Println("++++ PASS!!!!!!! ++++")
 		}
+		fmt.Println("++++ PASS!!!!!!! ++++")
 	}
 	return nil
 }
 
-// check wich files needs backup according to retention
+//CheckFiles check wich files needs backup according to retention
 func CheckFiles(dirorigin string, dirdestiny string, retention int) *models.Filestobackup {
 	retentionhours := (retention * 24)
 	backup := &models.Filestobackup{}

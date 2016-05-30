@@ -35,10 +35,10 @@ func printUsedValues() {
 	fmt.Println("log:", *logfile)
 }
 
-// logger defined in logger package
+//Logs logger defined in logger package
 var Logs *applogger.AppLogger
 
-// function to help with error validation and logs
+//CheckError function to help with error validation and logs
 func CheckError(err error) {
 	if err != nil {
 		Logs.Logger.Println("Error:", err)
@@ -48,7 +48,7 @@ func CheckError(err error) {
 	}
 }
 
-// function to help with print statements and logs
+//PrintLog function to help with print statements and logs
 func PrintLog(msg string) {
 	Logs.Logger.Println(msg)
 	fmt.Println(msg)
