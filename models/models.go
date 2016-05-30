@@ -6,34 +6,36 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 )
 
-// struct to read file to get parameters
+//Tomlconfig struct to read file to get parameters
 type Tomlconfig struct {
 	Title       string
 	Directories map[string]Directory
 }
 
-// parameters taken from file
+//Directory parameters taken from file
 type Directory struct {
 	ORIGIN    string
 	DESTINY   string
 	RETENTION int
 }
 
-// struct to check wich files needs backup
+//Filestobackup struct to check wich files needs backup
 type Filestobackup struct {
 	ORIGIN  string
 	FILES   []string
 	DESTINY string
 }
 
-// files associated with origin and destiny that needs backup
+//Backups files associated with origin and destiny that needs backup
 type Backups struct {
 	Elements []Filestobackup
 }
 
+//Size function to get the size of files needing backup
 func (f *Filestobackup) Size() int64 {
 	var size int64
 	for _, file := range f.FILES {
@@ -44,10 +46,10 @@ func (f *Filestobackup) Size() int64 {
 	return size
 }
 
-// method to create backups with tar and gzip
+//BackingUP method to create backups with tar and gzip
 func (b *Backups) BackingUP() error {
 	for _, v := range b.Elements {
-		backupfile, err := os.Create(v.DESTINY + "/backup_" + time.Now().Format(time.RFC3339) + ".tar.gz")
+		backupfile, err := os.Create(v.DESTINY + "/backup_" + strings.Replace(time.Now().Format(time.RFC3339), ":", "", -1) + ".tar.gz")
 		if err != nil {
 			return err
 		}
@@ -79,7 +81,7 @@ func (b *Backups) BackingUP() error {
 	return nil
 }
 
-// function to delete original files if keepfiles in main is false, only after
+// RemoveOriginalFiles function to delete original files if keepfiles in main is false, only after
 // the backup is completed without errors.
 func (b *Backups) RemoveOriginalFiles() error {
 	for _, v := range b.Elements {

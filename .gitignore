@@ -22,3 +22,7 @@ _testmain.go
 *.exe
 *.test
 *.prof
+
+backup_*
+gotoolbackup
+gotoolbackup.exe
