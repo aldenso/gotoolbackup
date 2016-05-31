@@ -91,8 +91,7 @@ func main() {
 		PrintLog(i.ORIGIN + ": " + files + " size in bytes: " +
 			strconv.FormatInt(i.Size(), 10))
 	}
-	err = backup.BackingUP()
-	CheckError(err)
+	backup.BackingUP(Logs)
 	PrintLog("Backup Successful")
 	if *removefiles {
 		err = backup.RemoveOriginalFiles()

@@ -7,7 +7,10 @@ import (
 	"io"
 	"os"
 	"strings"
+	"sync"
 	"time"
+
+	"github.com/aldenso/gotoolbackup/applogger"
 )
 
 //Tomlconfig struct to read file to get parameters
@@ -47,38 +50,58 @@ func (f *Filestobackup) Size() int64 {
 }
 
 //BackingUP method to create backups with tar and gzip
-func (b *Backups) BackingUP() error {
+func (b *Backups) BackingUP(l *applogger.AppLogger) {
+	var wg sync.WaitGroup
 	for _, v := range b.Elements {
-		backupfile, err := os.Create(v.DESTINY + "/backup_" + strings.Replace(time.Now().Format(time.RFC3339), ":", "", -1) + ".tar.gz")
-		if err != nil {
-			return err
-		}
-		defer backupfile.Close()
-		gw := gzip.NewWriter(backupfile)
-		defer gw.Close()
-		tw := tar.NewWriter(gw)
-		defer tw.Close()
-		for _, file := range v.FILES {
-			openfile, err := os.Open(v.ORIGIN + "/" + file)
+		wg.Add(1)
+		go func(v Filestobackup) {
+			defer wg.Done()
+			backupfile, err := os.Create(v.DESTINY + "/backup_" + strings.Replace(time.Now().Format(time.RFC3339), ":", "", -1) + ".tar.gz")
 			if err != nil {
-				return err
+				l.Logger.Println("Error:", err)
+				fmt.Println("Error:", err)
+				l.Close()
+				os.Exit(1)
 			}
-			defer openfile.Close()
-			if stat, err := openfile.Stat(); err == nil {
-				header, err := tar.FileInfoHeader(stat, stat.Name())
+			defer backupfile.Close()
+			gw := gzip.NewWriter(backupfile)
+			defer gw.Close()
+			tw := tar.NewWriter(gw)
+			defer tw.Close()
+			for _, file := range v.FILES {
+				openfile, err := os.Open(v.ORIGIN + "/" + file)
 				if err != nil {
-					return err
+					l.Logger.Println("Error:", err)
+					fmt.Println("Error:", err)
+					l.Close()
+					os.Exit(1)
 				}
-				if err := tw.WriteHeader(header); err != nil {
-					return err
-				}
-				if _, err := io.Copy(tw, openfile); err != nil {
-					return err
+				defer openfile.Close()
+				if stat, err := openfile.Stat(); err == nil {
+					header, err := tar.FileInfoHeader(stat, stat.Name())
+					if err != nil {
+						l.Logger.Println("Error:", err)
+						fmt.Println("Error:", err)
+						l.Close()
+						os.Exit(1)
+					}
+					if err := tw.WriteHeader(header); err != nil {
+						l.Logger.Println("Error:", err)
+						fmt.Println("Error:", err)
+						l.Close()
+						os.Exit(1)
+					}
+					if _, err := io.Copy(tw, openfile); err != nil {
+						l.Logger.Println("Error:", err)
+						fmt.Println("Error:", err)
+						l.Close()
+						os.Exit(1)
+					}
 				}
 			}
-		}
+		}(v)
 	}
-	return nil
+	wg.Wait()
 }
 
 // RemoveOriginalFiles function to delete original files if keepfiles in main is false, only after

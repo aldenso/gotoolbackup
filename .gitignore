@@ -24,5 +24,4 @@ _testmain.go
 *.prof
 
 backup_*
-gotoolbackup
-gotoolbackup.exe
+gotoolbackup*
