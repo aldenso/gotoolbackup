@@ -38,8 +38,8 @@ func printUsedValues() {
 //Logs logger defined in logger package
 var Logs *applogger.AppLogger
 
-//CheckError function to help with error validation and logs
-func CheckError(err error) {
+//checkError function to help with error validation and logs
+func checkError(err error) {
 	if err != nil {
 		Logs.Logger.Println("Error:", err)
 		fmt.Println("Error:", err)
@@ -48,8 +48,8 @@ func CheckError(err error) {
 	}
 }
 
-//PrintLog function to help with print statements and logs
-func PrintLog(msg string) {
+//printLog function to help with print statements and logs
+func printLog(msg string) {
 	Logs.Logger.Println(msg)
 	fmt.Println(msg)
 }
@@ -59,46 +59,46 @@ func main() {
 	flag.Parse()
 	printUsedValues()
 	Logs = applogger.NewLogger(*logfile)
-	PrintLog("Reading tomlfile: " + *tomlfile)
+	printLog("Reading tomlfile: " + *tomlfile)
 	config, err := checkers.ReadTomlFile(*tomlfile)
-	CheckError(err)
+	checkError(err)
 	err = checkers.RunCheck(*config)
 	if err != nil {
-		CheckError(err)
+		checkError(err)
 	}
 	checkers.LineSeparator()
-	PrintLog("Checking Retention for files")
+	printLog("Checking Retention for files")
 	checkers.LineSeparator()
 	backup := &models.Backups{}
 	for _, directory := range config.Directories {
-		salida := checkers.CheckFiles(directory.ORIGIN, directory.DESTINY, directory.RETENTION)
-		fmt.Printf("%s\n%s\n", salida.ORIGIN, salida.FILES)
-		if len(salida.FILES) == 0 {
-			PrintLog("nothing to backup in: " + salida.ORIGIN)
+		element := checkers.CheckFiles(directory.ORIGIN, directory.DESTINY, directory.RETENTION)
+		fmt.Printf("%s\n%s\n", element.ORIGIN, element.FILES)
+		if len(element.FILES) == 0 {
+			printLog("nothing to backup in: " + element.ORIGIN)
 		} else {
-			backup.Elements = append(backup.Elements, *salida)
+			backup.Elements = append(backup.Elements, *element)
 		}
 		fmt.Println("====================================================")
 	}
 	if len(backup.Elements) == 0 {
-		PrintLog("None of the files needs a backup!")
+		printLog("None of the files needs a backup!")
 		Logs.Close()
 		os.Exit(0)
 	}
-	PrintLog("Running backups for: ")
+	printLog("Running backups for: ")
 	for _, i := range backup.Elements {
 		files := strings.Join(i.FILES, ",")
-		PrintLog(i.ORIGIN + ": " + files + " size in bytes: " +
+		printLog(i.ORIGIN + ": " + files + " size in bytes: " +
 			strconv.FormatInt(i.Size(), 10))
 	}
 	backup.BackingUP(Logs)
-	PrintLog("Backup Successful")
+	printLog("Backup Successful")
 	if *removefiles {
 		err = backup.RemoveOriginalFiles()
-		CheckError(err)
-		PrintLog("old files removed")
+		checkError(err)
+		printLog("old files removed")
 	}
-	PrintLog("gotoolbackup ended! in: " + time.Since(start).String())
+	printLog("gotoolbackup ended! in: " + time.Since(start).String())
 	err = Logs.Close()
-	CheckError(err)
+	checkError(err)
 }
