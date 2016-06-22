@@ -1,3 +1,7 @@
+/*
+Package checkers gives you a way to read your config file and check directories
+and files.
+*/
 package checkers
 
 import (

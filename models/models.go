@@ -1,3 +1,7 @@
+/*
+Package models defines the models for config file, directories and files, and
+defines the methods to create backups and remove the original files.
+*/
 package models
 
 import (
@@ -13,32 +17,35 @@ import (
 	"github.com/aldenso/gotoolbackup/applogger"
 )
 
-//Tomlconfig struct to read file to get parameters
+//Tomlconfig struct to read config file and get parameters
 type Tomlconfig struct {
 	Title       string
 	Directories map[string]Directory
 }
 
-//Directory parameters taken from file
+//Directory struct indicating origin, destiny directories and a retention time
+//in days.
 type Directory struct {
 	ORIGIN    string
 	DESTINY   string
 	RETENTION int
 }
 
-//Filestobackup struct to check wich files needs backup
+//Filestobackup struct to check wich files needs backup according to the
+//retention time.
 type Filestobackup struct {
 	ORIGIN  string
 	FILES   []string
 	DESTINY string
 }
 
-//Backups files associated with origin and destiny that needs backup
+//Backups struct to define files associated with origin and destiny directories
+//that needs backup.
 type Backups struct {
 	Elements []Filestobackup
 }
 
-//Size function to get the size of files needing backup
+//Size method to get the size of files needing backup
 func (f *Filestobackup) Size() int64 {
 	var size int64
 	for _, file := range f.FILES {
@@ -105,7 +112,7 @@ func (b *Backups) BackingUP(l *applogger.AppLogger) {
 	wg.Wait()
 }
 
-// RemoveOriginalFiles function to delete original files if keepfiles in main is false, only after
+// RemoveOriginalFiles method to delete original files if keepfiles in main is false, only after
 // the backup is completed without errors.
 func (b *Backups) RemoveOriginalFiles() error {
 	for _, v := range b.Elements {

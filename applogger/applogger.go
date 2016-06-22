@@ -1,3 +1,6 @@
+/*
+Package applogger gives you a way to create a log file for your backup execution.
+*/
 package applogger
 
 import (
@@ -26,7 +29,7 @@ func NewLogger(filename string) *AppLogger {
 	return newlogger
 }
 
-//Close function to close logfile when it finish or fail
+//Close method to close logfile when it finish or fail
 func (l *AppLogger) Close() error {
 	err := l.Logfile.Close()
 	return err
