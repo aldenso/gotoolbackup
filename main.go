@@ -88,7 +88,7 @@ func main() {
 	printLog("Running backups for: ")
 	for _, i := range backup.Elements {
 		files := strings.Join(i.FILES, ",")
-		printLog(i.ORIGIN + ": " + files + " size in bytes: " +
+		printLog(i.ORIGIN + ": " + files + " - size in bytes: " +
 			strconv.FormatInt(i.Size(), 10))
 	}
 	backup.BackingUP(Logs)

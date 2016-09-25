@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -74,12 +75,14 @@ func printLog(l *applogger.AppLogger, msg string) {
 
 //BackingUP method to create backups with tar and gzip
 func (b *Backups) BackingUP(l *applogger.AppLogger) {
+	nowref := time.Now()
+	backupfilename := string("/backup_" + strings.Replace(nowref.Format(time.RFC3339), ":", "", -1) + ".tar.gz")
 	var wg sync.WaitGroup
 	for _, v := range b.Elements {
 		wg.Add(1)
 		go func(v Filestobackup) {
 			defer wg.Done()
-			backupfile, err := os.Create(v.DESTINY + "/backup_" + strings.Replace(time.Now().Format(time.RFC3339), ":", "", -1) + ".tar.gz")
+			backupfile, err := os.Create(v.DESTINY + backupfilename)
 			if err != nil {
 				checkError(l, err)
 			}
@@ -107,6 +110,9 @@ func (b *Backups) BackingUP(l *applogger.AppLogger) {
 					}
 				}
 			}
+			backupfileSize, _ := os.Stat(v.DESTINY + backupfilename)
+			msg := "backup file: " + v.DESTINY + backupfilename + " - size in bytes: " + strconv.FormatInt(backupfileSize.Size(), 10)
+			printLog(l, msg)
 		}(v)
 	}
 	wg.Wait()
