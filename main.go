@@ -11,10 +11,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/aldenso/gotoolbackup/applogger"
-	"github.com/aldenso/gotoolbackup/checkers"
-	"github.com/aldenso/gotoolbackup/models"
 )
 
 // variables to indicate flags values
@@ -35,8 +31,8 @@ func printUsedValues() {
 	fmt.Println("log:", *logfile)
 }
 
-//Logs logger defined in logger package
-var Logs *applogger.AppLogger
+//Logs logger defined in logger
+var Logs *AppLogger
 
 //checkError function to help with error validation and logs
 func checkError(err error) {
@@ -58,20 +54,20 @@ func main() {
 	start := time.Now()
 	flag.Parse()
 	printUsedValues()
-	Logs = applogger.NewLogger(*logfile)
+	Logs = NewLogger(*logfile)
 	printLog("Reading tomlfile: " + *tomlfile)
-	config, err := checkers.ReadTomlFile(*tomlfile)
+	config, err := ReadTomlFile(*tomlfile)
 	checkError(err)
-	err = checkers.RunCheck(*config)
+	err = RunCheck(*config)
 	if err != nil {
 		checkError(err)
 	}
-	checkers.LineSeparator()
+	LineSeparator()
 	printLog("Checking Retention for files")
-	checkers.LineSeparator()
-	backup := &models.Backups{}
+	LineSeparator()
+	backup := &Backups{}
 	for _, directory := range config.Directories {
-		element := checkers.CheckFiles(directory.ORIGIN, directory.DESTINY, directory.RETENTION)
+		element := CheckFiles(directory.ORIGIN, directory.DESTINY, directory.RETENTION)
 		fmt.Printf("%s\n%s\n", element.ORIGIN, element.FILES)
 		if len(element.FILES) == 0 {
 			printLog("nothing to backup in: " + element.ORIGIN)

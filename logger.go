@@ -1,7 +1,4 @@
-/*
-Package applogger gives you a way to create a log file for your backup execution.
-*/
-package applogger
+package main
 
 import (
 	"fmt"

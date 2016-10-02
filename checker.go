@@ -1,16 +1,10 @@
-/*
-Package checkers gives you a way to read your config file and check directories
-and files.
-*/
-package checkers
+package main
 
 import (
 	"fmt"
 	"io/ioutil"
 	"os"
 	"time"
-
-	"github.com/aldenso/gotoolbackup/models"
 
 	"github.com/BurntSushi/toml"
 )
@@ -21,8 +15,8 @@ func LineSeparator() {
 }
 
 //ReadTomlFile function to read the config file
-func ReadTomlFile(tomlfile string) (*models.Tomlconfig, error) {
-	var config *models.Tomlconfig
+func ReadTomlFile(tomlfile string) (*Tomlconfig, error) {
+	var config *Tomlconfig
 	if _, err := toml.DecodeFile(tomlfile, &config); err != nil {
 		return nil, err
 	}
@@ -45,7 +39,7 @@ func checkExist(origin string, destiny string) error {
 }
 
 //RunCheck function to run check
-func RunCheck(config models.Tomlconfig) error {
+func RunCheck(config Tomlconfig) error {
 	LineSeparator()
 	fmt.Printf("Config Title:\n%s\n", config.Title)
 	LineSeparator()
@@ -64,9 +58,9 @@ func RunCheck(config models.Tomlconfig) error {
 }
 
 //CheckFiles check wich files needs backup according to retention
-func CheckFiles(dirorigin string, dirdestiny string, retention int) *models.Filestobackup {
+func CheckFiles(dirorigin string, dirdestiny string, retention int) *Filestobackup {
 	retentionhours := (retention * 24)
-	backup := &models.Filestobackup{}
+	backup := &Filestobackup{}
 	backup.ORIGIN = dirorigin
 	backup.DESTINY = dirdestiny
 	files, err := ioutil.ReadDir(dirorigin)
