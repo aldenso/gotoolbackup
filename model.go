@@ -9,12 +9,7 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/spf13/afero"
 )
-
-// Fs afero fs to help later with testing.
-var Fs = afero.NewOsFs()
 
 //Tomlconfig struct to read config file and get parameters
 type Tomlconfig struct {
@@ -56,9 +51,8 @@ func (f *Filestobackup) Size() int64 {
 }
 
 //BackingUP method to create backups with tar and gzip
-func (b *Backups) BackingUP(l *AppLogger) {
-	nowref := time.Now()
-	backupfilename := string("/backup_" + strings.Replace(nowref.Format(time.RFC3339), ":", "", -1) + ".tar.gz")
+func (b *Backups) BackingUP() {
+	backupfilename := string("/backup_" + strings.Replace(NowRef.Format(time.RFC3339), ":", "", -1) + ".tar.gz")
 	var wg sync.WaitGroup
 	for _, v := range b.Elements {
 		wg.Add(1)
@@ -98,6 +92,19 @@ func (b *Backups) BackingUP(l *AppLogger) {
 		}(v)
 	}
 	wg.Wait()
+}
+
+//CheckFilesPerms checks files to backup perms before backup
+func (b *Backups) CheckFilesPerms() error {
+	for _, v := range b.Elements {
+		for _, file := range v.FILES {
+			_, err := Fs.Open(v.ORIGIN + "/" + file)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // RemoveOriginalFiles method to delete original files if keepfiles in main is false, only after

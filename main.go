@@ -11,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/spf13/afero"
 )
 
 // variables to indicate flags values
@@ -22,6 +24,15 @@ var (
 	logfile = flag.String("log", "gotoolbackup",
 		"indicate the log name pattern.")
 )
+
+// Fs afero fs to help later with testing.
+var Fs = afero.NewOsFs()
+
+// Use MemFs when testing
+//var Fs = afero.NewMemMapFs()
+
+//NowRef to use as pattern for backup file names.
+var NowRef = time.Now()
 
 // function to indicate the values you are using
 func printUsedValues() {
@@ -78,13 +89,15 @@ func main() {
 		Logs.Close()
 		os.Exit(0)
 	}
+	err = backup.CheckFilesPerms()
+	checkError(err)
 	printLog("Running backups for: ")
 	for _, i := range backup.Elements {
 		files := strings.Join(i.FILES, ",")
 		printLog(i.ORIGIN + ": " + files + " - size in bytes: " +
 			strconv.FormatInt(i.Size(), 10))
 	}
-	backup.BackingUP(Logs)
+	backup.BackingUP()
 	printLog("Backup Successful")
 	if *removefiles {
 		err = backup.RemoveOriginalFiles()
@@ -93,5 +106,7 @@ func main() {
 	}
 	printLog("gotoolbackup ended! in: " + time.Since(start).String())
 	err = Logs.Close()
-	checkError(err)
+	if err != nil {
+		fmt.Printf("Error closing logger: %v", err)
+	}
 }
