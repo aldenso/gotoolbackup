@@ -6,17 +6,19 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/spf13/afero"
 )
 
 //AppLogger struct to use a logfile and a logger
 type AppLogger struct {
-	Logfile *os.File
+	Logfile afero.File
 	Logger  *log.Logger
 }
 
 //NewLogger create the new logger
 func NewLogger(filename string) *AppLogger {
-	file, err := os.Create(filename + "_" + strings.Replace(time.Now().Format(time.RFC3339), ":", "", -1) + ".log")
+	file, err := Fs.Create(filename + "_" + strings.Replace(time.Now().Format(time.RFC3339), ":", "", -1) + ".log")
 	if err != nil {
 		fmt.Println("Error creating logger file", err)
 		os.Exit(1)

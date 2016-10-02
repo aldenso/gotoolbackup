@@ -24,22 +24,25 @@ func ReadTomlFile(tomlfile string) (*Tomlconfig, error) {
 }
 
 // function to check if origin and destiny exist
-func checkExist(origin string, destiny string) error {
+func checkExist(origin string, destiny string) {
 	LineSeparator()
 	dirs := []string{origin, destiny}
 	fmt.Println("Checking directories:")
 	for _, d := range dirs {
-		if _, err := os.Stat(d); os.IsNotExist(err) {
+		// if _, err := Fs.Stat(d); os.IsNotExist(err) {
+		_, err := Fs.Stat(d)
+		if err != nil {
 			fmt.Printf("FAILED: %s\n%v\n", d, err.Error())
-			return err
+			os.Exit(1)
+			// return
 		}
 		fmt.Printf("PASS: %s\n", d)
 	}
-	return nil
+	// return
 }
 
 //RunCheck function to run check
-func RunCheck(config Tomlconfig) error {
+func RunCheck(config Tomlconfig) {
 	LineSeparator()
 	fmt.Printf("Config Title:\n%s\n", config.Title)
 	LineSeparator()
@@ -47,14 +50,8 @@ func RunCheck(config Tomlconfig) error {
 		fmt.Printf("Backup: %s\nOrigin: %s | Destiny: %s | Retention: %d\n", directoryName, directory.ORIGIN, directory.DESTINY, directory.RETENTION)
 	}
 	for _, d := range config.Directories {
-		err := checkExist(d.ORIGIN, d.DESTINY)
-		if err != nil {
-			fmt.Println("---- FAILED!!!!! ----")
-			return err
-		}
-		fmt.Println("++++ PASS!!!!!!! ++++")
+		checkExist(d.ORIGIN, d.DESTINY)
 	}
-	return nil
 }
 
 //CheckFiles check wich files needs backup according to retention

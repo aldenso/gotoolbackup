@@ -58,10 +58,7 @@ func main() {
 	printLog("Reading tomlfile: " + *tomlfile)
 	config, err := ReadTomlFile(*tomlfile)
 	checkError(err)
-	err = RunCheck(*config)
-	if err != nil {
-		checkError(err)
-	}
+	RunCheck(*config)
 	LineSeparator()
 	printLog("Checking Retention for files")
 	LineSeparator()

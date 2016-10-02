@@ -5,12 +5,16 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
-	"os"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/spf13/afero"
 )
+
+// Fs afero fs to help later with testing.
+var Fs = afero.NewOsFs()
 
 //Tomlconfig struct to read config file and get parameters
 type Tomlconfig struct {
@@ -44,7 +48,7 @@ type Backups struct {
 func (f *Filestobackup) Size() int64 {
 	var size int64
 	for _, file := range f.FILES {
-		info, _ := os.Stat(f.ORIGIN + "/" + file)
+		info, _ := Fs.Stat(f.ORIGIN + "/" + file)
 		increment := info.Size()
 		size = size + increment
 	}
@@ -60,7 +64,7 @@ func (b *Backups) BackingUP(l *AppLogger) {
 		wg.Add(1)
 		go func(v Filestobackup) {
 			defer wg.Done()
-			backupfile, err := os.Create(v.DESTINY + backupfilename)
+			backupfile, err := Fs.Create(v.DESTINY + backupfilename)
 			if err != nil {
 				checkError(err)
 			}
@@ -70,7 +74,7 @@ func (b *Backups) BackingUP(l *AppLogger) {
 			tw := tar.NewWriter(gw)
 			defer tw.Close()
 			for _, file := range v.FILES {
-				openfile, err := os.Open(v.ORIGIN + "/" + file)
+				openfile, err := Fs.Open(v.ORIGIN + "/" + file)
 				if err != nil {
 					checkError(err)
 				}
@@ -88,7 +92,7 @@ func (b *Backups) BackingUP(l *AppLogger) {
 					}
 				}
 			}
-			backupfileSize, _ := os.Stat(v.DESTINY + backupfilename)
+			backupfileSize, _ := Fs.Stat(v.DESTINY + backupfilename)
 			msg := "backup file: " + v.DESTINY + backupfilename + " - size in bytes: " + strconv.FormatInt(backupfileSize.Size(), 10)
 			printLog(msg)
 		}(v)
@@ -102,7 +106,7 @@ func (b *Backups) RemoveOriginalFiles() error {
 	for _, v := range b.Elements {
 		if len(v.FILES) > 0 {
 			for _, file := range v.FILES {
-				err := os.Remove(v.ORIGIN + "/" + file)
+				err := Fs.Remove(v.ORIGIN + "/" + file)
 				if err != nil {
 					fmt.Println("failed to remove old files.")
 					return err
