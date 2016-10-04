@@ -11,35 +11,35 @@ import (
 	"time"
 )
 
-//Tomlconfig struct to read config file and get parameters
+// Tomlconfig struct to read config file and get parameters
 type Tomlconfig struct {
 	Title       string
 	Directories map[string]Directory
 }
 
-//Directory struct indicating origin, destiny directories and a retention time
-//in days.
+// Directory struct indicating origin, destiny directories and a retention time
+// in days.
 type Directory struct {
 	ORIGIN    string
 	DESTINY   string
 	RETENTION int
 }
 
-//Filestobackup struct to check wich files needs backup according to the
-//retention time.
+// Filestobackup struct to check wich files needs backup according to the
+// retention time.
 type Filestobackup struct {
 	ORIGIN  string
 	FILES   []string
 	DESTINY string
 }
 
-//Backups struct to define files associated with origin and destiny directories
-//that needs backup.
+// Backups struct to define files associated with origin and destiny directories
+// that needs backup.
 type Backups struct {
 	Elements []Filestobackup
 }
 
-//Size method to get the size of files needing backup
+// Size method to get the size of files needing backup
 func (f *Filestobackup) Size() int64 {
 	var size int64
 	for _, file := range f.FILES {
@@ -50,7 +50,7 @@ func (f *Filestobackup) Size() int64 {
 	return size
 }
 
-//BackingUP method to create backups with tar and gzip
+// BackingUP method to create backups with tar and gzip
 func (b *Backups) BackingUP() {
 	backupfilename := string("/backup_" + strings.Replace(NowRef.Format(time.RFC3339), ":", "", -1) + ".tar.gz")
 	var wg sync.WaitGroup
@@ -94,7 +94,7 @@ func (b *Backups) BackingUP() {
 	wg.Wait()
 }
 
-//CheckFilesPerms checks files to backup perms before backup
+// CheckFilesPerms checks files to backup perms before backup
 func (b *Backups) CheckFilesPerms() error {
 	for _, v := range b.Elements {
 		for _, file := range v.FILES {
@@ -109,18 +109,24 @@ func (b *Backups) CheckFilesPerms() error {
 
 // RemoveOriginalFiles method to delete original files if keepfiles in main is false, only after
 // the backup is completed without errors.
-func (b *Backups) RemoveOriginalFiles() error {
+func (b *Backups) RemoveOriginalFiles() ([]string, error) {
+	var missing []string
+	var reterr error
 	for _, v := range b.Elements {
+		fmt.Printf("Removing Original Files for %s: %v\n", v.ORIGIN, v.FILES)
 		if len(v.FILES) > 0 {
 			for _, file := range v.FILES {
 				err := Fs.Remove(v.ORIGIN + "/" + file)
 				if err != nil {
-					fmt.Println("failed to remove old files.")
-					return err
+					fullfile := fmt.Sprintf("%s/%s", v.ORIGIN, file)
+					missing = append(missing, fullfile)
+					reterr = err
 				}
 			}
-			fmt.Printf("Removed Original Files for %s: %v\n", v.ORIGIN, v.FILES)
 		}
 	}
-	return nil
+	if len(missing) != 0 {
+		return missing, reterr
+	}
+	return nil, nil
 }

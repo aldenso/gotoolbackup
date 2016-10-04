@@ -33,3 +33,19 @@ func (l *AppLogger) Close() error {
 	err := l.Logfile.Close()
 	return err
 }
+
+// checkError function to help with error validation and logs
+func checkError(err error) {
+	if err != nil {
+		Logs.Logger.Println("Error:", err)
+		fmt.Println("Error:", err)
+		Logs.Close()
+		os.Exit(1)
+	}
+}
+
+// printLog function to help with print statements and logs
+func printLog(msg string) {
+	Logs.Logger.Println(msg)
+	fmt.Println(msg)
+}

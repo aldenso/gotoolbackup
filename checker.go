@@ -3,19 +3,18 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-	"os"
 	"time"
 
 	"github.com/BurntSushi/toml"
 )
 
-//LineSeparator just for separate output in more readable lines
+// LineSeparator just for separate output in more readable lines
 func LineSeparator() {
 	fmt.Println("#####################################")
 }
 
-//ReadTomlFile function to read the config file
-func ReadTomlFile(tomlfile string) (*Tomlconfig, error) {
+// ReadTomlFile function to read the config file
+func readTomlFile(tomlfile string) (*Tomlconfig, error) {
 	var config *Tomlconfig
 	if _, err := toml.DecodeFile(tomlfile, &config); err != nil {
 		return nil, err
@@ -24,38 +23,49 @@ func ReadTomlFile(tomlfile string) (*Tomlconfig, error) {
 }
 
 // function to check if origin and destiny exist
-func checkExist(origin string, destiny string) {
+func checkExist(origin string, destiny string) ([]string, error) {
 	LineSeparator()
+	var missing []string
+	var reterr error
 	dirs := []string{origin, destiny}
-	fmt.Println("Checking directories:")
 	for _, d := range dirs {
-		// if _, err := Fs.Stat(d); os.IsNotExist(err) {
 		_, err := Fs.Stat(d)
 		if err != nil {
-			fmt.Printf("FAILED: %s\n%v\n", d, err.Error())
-			os.Exit(1)
-			// return
+			missing = append(missing, d)
+			reterr = err
 		}
-		fmt.Printf("PASS: %s\n", d)
 	}
-	// return
+	if len(missing) != 0 {
+		return missing, reterr
+	}
+	return nil, nil
 }
 
-//RunCheck function to run check
-func RunCheck(config Tomlconfig) {
+// runCheck function to run check
+func runCheck(config Tomlconfig) {
 	LineSeparator()
 	fmt.Printf("Config Title:\n%s\n", config.Title)
 	LineSeparator()
 	for directoryName, directory := range config.Directories {
 		fmt.Printf("Backup: %s\nOrigin: %s | Destiny: %s | Retention: %d\n", directoryName, directory.ORIGIN, directory.DESTINY, directory.RETENTION)
 	}
+	fmt.Println("Checking directories:")
 	for _, d := range config.Directories {
-		checkExist(d.ORIGIN, d.DESTINY)
+		dirs, err := checkExist(d.ORIGIN, d.DESTINY)
+		if err != nil {
+			for _, d := range dirs {
+				fmt.Printf("FAILED: %s\n%v\n", d, err.Error())
+			}
+		} else {
+			for _, d := range dirs {
+				fmt.Printf("PASS: %s\n", d)
+			}
+		}
 	}
 }
 
-//CheckFiles check wich files needs backup according to retention
-func CheckFiles(dirorigin string, dirdestiny string, retention int) *Filestobackup {
+// checkFiles check wich files needs backup according to retention
+func checkFiles(dirorigin string, dirdestiny string, retention int) *Filestobackup {
 	retentionhours := (retention * 24)
 	backup := &Filestobackup{}
 	backup.ORIGIN = dirorigin

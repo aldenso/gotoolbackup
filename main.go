@@ -31,7 +31,7 @@ var Fs = afero.NewOsFs()
 // Use MemFs when testing
 //var Fs = afero.NewMemMapFs()
 
-//NowRef to use as pattern for backup file names.
+// NowRef to use as pattern for backup file names.
 var NowRef = time.Now()
 
 // function to indicate the values you are using
@@ -42,24 +42,8 @@ func printUsedValues() {
 	fmt.Println("log:", *logfile)
 }
 
-//Logs logger defined in logger
+// Logs logger defined in logger
 var Logs *AppLogger
-
-//checkError function to help with error validation and logs
-func checkError(err error) {
-	if err != nil {
-		Logs.Logger.Println("Error:", err)
-		fmt.Println("Error:", err)
-		Logs.Close()
-		os.Exit(1)
-	}
-}
-
-//printLog function to help with print statements and logs
-func printLog(msg string) {
-	Logs.Logger.Println(msg)
-	fmt.Println(msg)
-}
 
 func main() {
 	start := time.Now()
@@ -67,15 +51,15 @@ func main() {
 	printUsedValues()
 	Logs = NewLogger(*logfile)
 	printLog("Reading tomlfile: " + *tomlfile)
-	config, err := ReadTomlFile(*tomlfile)
+	config, err := readTomlFile(*tomlfile)
 	checkError(err)
-	RunCheck(*config)
+	runCheck(*config)
 	LineSeparator()
 	printLog("Checking Retention for files")
 	LineSeparator()
 	backup := &Backups{}
 	for _, directory := range config.Directories {
-		element := CheckFiles(directory.ORIGIN, directory.DESTINY, directory.RETENTION)
+		element := checkFiles(directory.ORIGIN, directory.DESTINY, directory.RETENTION)
 		fmt.Printf("%s\n%s\n", element.ORIGIN, element.FILES)
 		if len(element.FILES) == 0 {
 			printLog("nothing to backup in: " + element.ORIGIN)
@@ -100,9 +84,14 @@ func main() {
 	backup.BackingUP()
 	printLog("Backup Successful")
 	if *removefiles {
-		err = backup.RemoveOriginalFiles()
-		checkError(err)
-		printLog("old files removed")
+		filelist, delerr := backup.RemoveOriginalFiles()
+		if delerr != nil {
+			fmt.Println("failed to remove some of the old files.")
+			for _, file := range filelist {
+				fmt.Printf("failed to remove: %s\n", file)
+			}
+		}
+		printLog("removing old files ended!")
 	}
 	printLog("gotoolbackup ended! in: " + time.Since(start).String())
 	err = Logs.Close()
