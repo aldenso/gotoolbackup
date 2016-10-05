@@ -9,6 +9,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/spf13/afero"
 )
 
 // Tomlconfig struct to read config file and get parameters
@@ -40,10 +42,10 @@ type Backups struct {
 }
 
 // Size method to get the size of files needing backup
-func (f *Filestobackup) Size() int64 {
+func (f *Filestobackup) Size(fs afero.Fs) int64 {
 	var size int64
 	for _, file := range f.FILES {
-		info, _ := Fs.Stat(f.ORIGIN + "/" + file)
+		info, _ := fs.Stat(f.ORIGIN + "/" + file)
 		increment := info.Size()
 		size = size + increment
 	}
@@ -51,16 +53,18 @@ func (f *Filestobackup) Size() int64 {
 }
 
 // BackingUP method to create backups with tar and gzip
-func (b *Backups) BackingUP() {
+func (b *Backups) BackingUP(fs afero.Fs) []error {
+	var msgs []string
+	var errs []error
 	backupfilename := string("/backup_" + strings.Replace(NowRef.Format(time.RFC3339), ":", "", -1) + ".tar.gz")
 	var wg sync.WaitGroup
 	for _, v := range b.Elements {
 		wg.Add(1)
 		go func(v Filestobackup) {
 			defer wg.Done()
-			backupfile, err := Fs.Create(v.DESTINY + backupfilename)
+			backupfile, err := fs.Create(v.DESTINY + backupfilename)
 			if err != nil {
-				checkError(err)
+				errs = append(errs, err)
 			}
 			defer backupfile.Close()
 			gw := gzip.NewWriter(backupfile)
@@ -68,37 +72,39 @@ func (b *Backups) BackingUP() {
 			tw := tar.NewWriter(gw)
 			defer tw.Close()
 			for _, file := range v.FILES {
-				openfile, err := Fs.Open(v.ORIGIN + "/" + file)
+				openfile, err := fs.Open(v.ORIGIN + "/" + file)
 				if err != nil {
-					checkError(err)
+					errs = append(errs, err)
 				}
-				defer openfile.Close()
 				if stat, err := openfile.Stat(); err == nil {
 					header, err := tar.FileInfoHeader(stat, stat.Name())
 					if err != nil {
-						checkError(err)
+						errs = append(errs, err)
 					}
 					if err := tw.WriteHeader(header); err != nil {
 						checkError(err)
+						//errs = append(errs, err)
 					}
 					if _, err := io.Copy(tw, openfile); err != nil {
-						checkError(err)
+						errs = append(errs, err)
 					}
 				}
+				openfile.Close()
 			}
-			backupfileSize, _ := Fs.Stat(v.DESTINY + backupfilename)
+			backupfileSize, _ := fs.Stat(v.DESTINY + backupfilename)
 			msg := "backup file: " + v.DESTINY + backupfilename + " - size in bytes: " + strconv.FormatInt(backupfileSize.Size(), 10)
-			printLog(msg)
+			msgs = append(msgs, msg)
 		}(v)
 	}
 	wg.Wait()
+	return errs
 }
 
 // CheckFilesPerms checks files to backup perms before backup
-func (b *Backups) CheckFilesPerms() error {
+func (b *Backups) CheckFilesPerms(fs afero.Fs) error {
 	for _, v := range b.Elements {
 		for _, file := range v.FILES {
-			_, err := Fs.Open(v.ORIGIN + "/" + file)
+			_, err := fs.Open(v.ORIGIN + "/" + file)
 			if err != nil {
 				return err
 			}

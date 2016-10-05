@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/spf13/afero"
+	"github.com/aldenso/gotoolbackup/backupfs"
 )
 
 // variables to indicate flags values
@@ -26,10 +26,8 @@ var (
 )
 
 // Fs afero fs to help later with testing.
-var Fs = afero.NewOsFs()
-
-// Use MemFs when testing
-//var Fs = afero.NewMemMapFs()
+// var Fs = afero.NewOsFs()
+var Fs = backupfs.InitOSFs()
 
 // NowRef to use as pattern for backup file names.
 var NowRef = time.Now()
@@ -59,7 +57,7 @@ func main() {
 	LineSeparator()
 	backup := &Backups{}
 	for _, directory := range config.Directories {
-		element := checkFiles(directory.ORIGIN, directory.DESTINY, directory.RETENTION)
+		element := checkFiles(Fs, directory.ORIGIN, directory.DESTINY, directory.RETENTION)
 		fmt.Printf("%s\n%s\n", element.ORIGIN, element.FILES)
 		if len(element.FILES) == 0 {
 			printLog("nothing to backup in: " + element.ORIGIN)
@@ -73,16 +71,23 @@ func main() {
 		Logs.Close()
 		os.Exit(0)
 	}
-	err = backup.CheckFilesPerms()
+	err = backup.CheckFilesPerms(Fs)
 	checkError(err)
 	printLog("Running backups for: ")
 	for _, i := range backup.Elements {
 		files := strings.Join(i.FILES, ",")
 		printLog(i.ORIGIN + ": " + files + " - size in bytes: " +
-			strconv.FormatInt(i.Size(), 10))
+			strconv.FormatInt(i.Size(Fs), 10))
 	}
-	backup.BackingUP()
-	printLog("Backup Successful")
+	errs := backup.BackingUP(Fs)
+	if len(errs) == 0 {
+		printLog("Backup Successful")
+	} else {
+		printLog("Backup Ended with errors: ")
+		for _, e := range errs {
+			printLog(e.Error())
+		}
+	}
 	if *removefiles {
 		filelist, delerr := backup.RemoveOriginalFiles()
 		if delerr != nil {

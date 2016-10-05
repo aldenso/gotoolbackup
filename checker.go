@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"time"
 
 	"github.com/BurntSushi/toml"
+	"github.com/spf13/afero"
 )
 
 // LineSeparator just for separate output in more readable lines
@@ -65,12 +65,12 @@ func runCheck(config Tomlconfig) {
 }
 
 // checkFiles check wich files needs backup according to retention
-func checkFiles(dirorigin string, dirdestiny string, retention int) *Filestobackup {
+func checkFiles(fs afero.Fs, dirorigin string, dirdestiny string, retention int) *Filestobackup {
 	retentionhours := (retention * 24)
 	backup := &Filestobackup{}
 	backup.ORIGIN = dirorigin
 	backup.DESTINY = dirdestiny
-	files, err := ioutil.ReadDir(dirorigin)
+	files, err := afero.ReadDir(fs, dirorigin)
 	if err != nil {
 		fmt.Printf("%s", err.Error())
 	}
