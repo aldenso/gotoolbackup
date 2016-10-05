@@ -85,7 +85,7 @@ func Test_BackingUp(t *testing.T) {
 		fmt.Println(i.ORIGIN + ": " + files + " - size in bytes: " +
 			strconv.FormatInt(i.Size(NewFs), 10))
 	}
-	errs := backup.BackingUP(NewFs)
+	_, errs := backup.BackingUP(NewFs)
 	if len(errs) != 0 {
 		t.Errorf("Backup ended with errors")
 	}

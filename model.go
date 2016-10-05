@@ -53,7 +53,7 @@ func (f *Filestobackup) Size(fs afero.Fs) int64 {
 }
 
 // BackingUP method to create backups with tar and gzip
-func (b *Backups) BackingUP(fs afero.Fs) []error {
+func (b *Backups) BackingUP(fs afero.Fs) ([]string, []error) {
 	var msgs []string
 	var errs []error
 	backupfilename := string("/backup_" + strings.Replace(NowRef.Format(time.RFC3339), ":", "", -1) + ".tar.gz")
@@ -97,7 +97,7 @@ func (b *Backups) BackingUP(fs afero.Fs) []error {
 		}(v)
 	}
 	wg.Wait()
-	return errs
+	return msgs, errs
 }
 
 // CheckFilesPerms checks files to backup perms before backup

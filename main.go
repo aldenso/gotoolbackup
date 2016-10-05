@@ -79,7 +79,7 @@ func main() {
 		printLog(i.ORIGIN + ": " + files + " - size in bytes: " +
 			strconv.FormatInt(i.Size(Fs), 10))
 	}
-	errs := backup.BackingUP(Fs)
+	msgs, errs := backup.BackingUP(Fs)
 	if len(errs) == 0 {
 		printLog("Backup Successful")
 	} else {
@@ -87,6 +87,9 @@ func main() {
 		for _, e := range errs {
 			printLog(e.Error())
 		}
+	}
+	for _, msg := range msgs {
+		printLog(msg)
 	}
 	if *removefiles {
 		filelist, delerr := backup.RemoveOriginalFiles()
