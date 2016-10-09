@@ -92,7 +92,7 @@ func main() {
 		printLog(msg)
 	}
 	if *removefiles {
-		filelist, delerr := backup.RemoveOriginalFiles()
+		filelist, delerr := backup.RemoveOriginalFiles(Fs)
 		if delerr != nil {
 			fmt.Println("failed to remove some of the old files.")
 			for _, file := range filelist {

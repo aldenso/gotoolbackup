@@ -78,7 +78,7 @@ func Test_BackingUp(t *testing.T) {
 	}
 	err := backup.CheckFilesPerms(NewFs)
 	if err != nil {
-		t.Errorf("error checking files perms %s", err)
+		t.Errorf("error checking files perms %s\n", err)
 	}
 	for _, i := range backup.Elements {
 		files := strings.Join(i.FILES, ",")
@@ -87,6 +87,13 @@ func Test_BackingUp(t *testing.T) {
 	}
 	_, errs := backup.BackingUP(NewFs)
 	if len(errs) != 0 {
-		t.Errorf("Backup ended with errors")
+		t.Errorf("Backup ended with errors: %v\n", errs)
+	}
+	filelist, delerr := backup.RemoveOriginalFiles(NewFs)
+	if delerr != nil {
+		t.Errorf("failed to remove some of the old files.\n")
+		for _, file := range filelist {
+			t.Errorf("failed to remove: %s\n", file)
+		}
 	}
 }

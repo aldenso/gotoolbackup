@@ -115,14 +115,14 @@ func (b *Backups) CheckFilesPerms(fs afero.Fs) error {
 
 // RemoveOriginalFiles method to delete original files if keepfiles in main is false, only after
 // the backup is completed without errors.
-func (b *Backups) RemoveOriginalFiles() ([]string, error) {
+func (b *Backups) RemoveOriginalFiles(fs afero.Fs) ([]string, error) {
 	var missing []string
 	var reterr error
 	for _, v := range b.Elements {
 		fmt.Printf("Removing Original Files for %s: %v\n", v.ORIGIN, v.FILES)
 		if len(v.FILES) > 0 {
 			for _, file := range v.FILES {
-				err := Fs.Remove(v.ORIGIN + "/" + file)
+				err := fs.Remove(v.ORIGIN + "/" + file)
 				if err != nil {
 					fullfile := fmt.Sprintf("%s/%s", v.ORIGIN, file)
 					missing = append(missing, fullfile)
