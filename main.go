@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/aldenso/gotoolbackup/backupfs"
+	"github.com/spf13/afero"
 )
 
 // variables to indicate flags values
@@ -43,11 +44,13 @@ func printUsedValues() {
 // Logs logger defined in logger
 var Logs *AppLogger
 
-func main() {
+// RunBackups function to run all backups from main
+func RunBackups(fs afero.Fs) []error {
+	var errs []error
 	start := time.Now()
 	flag.Parse()
 	printUsedValues()
-	Logs = NewLogger(*logfile)
+	Logs = NewLogger(fs, *logfile)
 	printLog("Reading tomlfile: " + *tomlfile)
 	config, err := readTomlFile(*tomlfile)
 	checkError(err)
@@ -57,7 +60,7 @@ func main() {
 	LineSeparator()
 	backup := &Backups{}
 	for _, directory := range config.Directories {
-		element := checkFiles(Fs, directory.ORIGIN, directory.DESTINY, directory.RETENTION)
+		element := checkFiles(fs, directory.ORIGIN, directory.DESTINY, directory.RETENTION)
 		fmt.Printf("%s\n%s\n", element.ORIGIN, element.FILES)
 		if len(element.FILES) == 0 {
 			printLog("nothing to backup in: " + element.ORIGIN)
@@ -71,32 +74,34 @@ func main() {
 		Logs.Close()
 		os.Exit(0)
 	}
-	err = backup.CheckFilesPerms(Fs)
+	err = backup.CheckFilesPerms(fs)
 	checkError(err)
 	printLog("Running backups for: ")
 	for _, i := range backup.Elements {
 		files := strings.Join(i.FILES, ",")
 		printLog(i.ORIGIN + ": " + files + " - size in bytes: " +
-			strconv.FormatInt(i.Size(Fs), 10))
+			strconv.FormatInt(i.Size(fs), 10))
 	}
-	msgs, errs := backup.BackingUP(Fs)
+	msgs, errs := backup.BackingUP(fs)
 	if len(errs) == 0 {
 		printLog("Backup Successful")
 	} else {
 		printLog("Backup Ended with errors: ")
 		for _, e := range errs {
 			printLog(e.Error())
+			errs = append(errs, e)
 		}
 	}
 	for _, msg := range msgs {
 		printLog(msg)
 	}
 	if *removefiles {
-		filelist, delerr := backup.RemoveOriginalFiles(Fs)
+		filelist, delerr := backup.RemoveOriginalFiles(fs)
 		if delerr != nil {
 			fmt.Println("failed to remove some of the old files.")
 			for _, file := range filelist {
 				fmt.Printf("failed to remove: %s\n", file)
+				errs = append(errs, delerr)
 			}
 		}
 		printLog("removing old files ended!")
@@ -105,5 +110,17 @@ func main() {
 	err = Logs.Close()
 	if err != nil {
 		fmt.Printf("Error closing logger: %v", err)
+		errs = append(errs, err)
+	}
+	return errs
+}
+
+func main() {
+	errs := RunBackups(Fs)
+	if len(errs) != 0 {
+		fmt.Printf("Errors found in backups\n")
+		for _, err := range errs {
+			fmt.Printf("%s\n", err)
+		}
 	}
 }

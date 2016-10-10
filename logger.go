@@ -17,8 +17,8 @@ type AppLogger struct {
 }
 
 //NewLogger create the new logger
-func NewLogger(filename string) *AppLogger {
-	file, err := Fs.Create(filename + "_" + strings.Replace(time.Now().Format(time.RFC3339), ":", "", -1) + ".log")
+func NewLogger(fs afero.Fs, filename string) *AppLogger {
+	file, err := fs.Create(filename + "_" + strings.Replace(time.Now().Format(time.RFC3339), ":", "", -1) + ".log")
 	if err != nil {
 		fmt.Println("Error creating logger file", err)
 		os.Exit(1)
