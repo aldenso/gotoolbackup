@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/BurntSushi/toml"
@@ -23,26 +24,17 @@ func readTomlFile(tomlfile string) (*Tomlconfig, error) {
 }
 
 // function to check if origin and destiny exist
-func checkExist(origin string, destiny string) ([]string, error) {
+func checkExist(fs afero.Fs, directory string) error {
 	LineSeparator()
-	var missing []string
-	var reterr error
-	dirs := []string{origin, destiny}
-	for _, d := range dirs {
-		_, err := Fs.Stat(d)
-		if err != nil {
-			missing = append(missing, d)
-			reterr = err
-		}
+	_, err := fs.Stat(directory)
+	if err != nil {
+		return err
 	}
-	if len(missing) != 0 {
-		return missing, reterr
-	}
-	return nil, nil
+	return nil
 }
 
 // runCheck function to run check
-func runCheck(config Tomlconfig) {
+func runCheck(fs afero.Fs, config Tomlconfig) {
 	LineSeparator()
 	fmt.Printf("Config Title:\n%s\n", config.Title)
 	LineSeparator()
@@ -50,17 +42,24 @@ func runCheck(config Tomlconfig) {
 		fmt.Printf("Backup: %s\nOrigin: %s | Destiny: %s | Retention: %d\n", directoryName, directory.ORIGIN, directory.DESTINY, directory.RETENTION)
 	}
 	fmt.Println("Checking directories:")
+	var numerrs int
 	for _, d := range config.Directories {
-		dirs, err := checkExist(d.ORIGIN, d.DESTINY)
+		err := checkExist(fs, d.ORIGIN)
 		if err != nil {
-			for _, d := range dirs {
-				fmt.Printf("FAILED: %s\n%v\n", d, err.Error())
-			}
-		} else {
-			for _, d := range dirs {
-				fmt.Printf("PASS: %s\n", d)
-			}
+			numerrs++
+			checkError(err)
 		}
+		fmt.Printf("PASS: %s\n", d.ORIGIN)
+		err = checkExist(fs, d.DESTINY)
+		if err != nil {
+			numerrs++
+			checkError(err)
+		}
+		fmt.Printf("PASS: %s\n", d.DESTINY)
+	}
+	if numerrs != 0 {
+		printLog("Please create all directories")
+		os.Exit(1)
 	}
 }
 

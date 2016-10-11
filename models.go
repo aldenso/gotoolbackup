@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"os"
 	"strconv"
 	"strings"
 	"sync"
@@ -83,6 +84,8 @@ func (b *Backups) BackingUP(fs afero.Fs) ([]string, []error) {
 					}
 					if err := tw.WriteHeader(header); err != nil {
 						checkError(err)
+						Logs.Close()
+						os.Exit(1)
 						//errs = append(errs, err)
 					}
 					if _, err := io.Copy(tw, openfile); err != nil {

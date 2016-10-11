@@ -54,7 +54,7 @@ func RunBackups(fs afero.Fs) []error {
 	printLog("Reading tomlfile: " + *tomlfile)
 	config, err := readTomlFile(*tomlfile)
 	checkError(err)
-	runCheck(*config)
+	runCheck(fs, *config)
 	LineSeparator()
 	printLog("Checking Retention for files")
 	LineSeparator()

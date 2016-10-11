@@ -39,8 +39,6 @@ func checkError(err error) {
 	if err != nil {
 		Logs.Logger.Println("Error:", err)
 		fmt.Println("Error:", err)
-		Logs.Close()
-		os.Exit(1)
 	}
 }
 
